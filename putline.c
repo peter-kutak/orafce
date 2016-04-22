@@ -110,20 +110,16 @@ send_buffer()
 		 * FrontendProtocol is not avalilable in MSVC because it is not
 		 * PGDLLEXPORT'ed. So, we assume always the protocol >= 3.
 		 */
-
+		bool v3Protocol = true;
 #ifndef _MSC_VER
-
-		if (PG_PROTOCOL_MAJOR(FrontendProtocol) >= 3)
-		{
-
+		v3Protocol = (PG_PROTOCOL_MAJOR(FrontendProtocol) >= 3);
 #endif
 
+		if (v3Protocol)
+		{
 			pq_sendbyte(&msgbuf, PG_DIAG_MESSAGE_PRIMARY);
 			pq_sendstring(&msgbuf, buffer);
 			pq_sendbyte(&msgbuf, '\0');
-
-#ifndef _MSC_VER
-
 		}
 		else
 		{
@@ -131,8 +127,6 @@ send_buffer()
 			*cursor = '\0';
 			pq_sendstring(&msgbuf, buffer);
 		}
-
-#endif
 
 		pq_endmessage(&msgbuf);
 		pq_flush();
